@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eva Developer Stats Dashboard</title>
+    <!-- Simple, clean font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .btn-connect {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-connect:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .panel-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+
+        /* Stats Blocks */
+        .stats-row {
+            display: flex;
+            gap: 15px;
+        }
+        .stat-box {
+            flex: 1;
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        /* Grammar List */
+        .grammar-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .grammar-issue {
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .wrong {
+            color: #e11d48;
+            text-decoration: line-through;
+            font-weight: 500;
+        }
+        .correct {
+            color: #10b981;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .rule {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #881337;
+            font-weight: 500;
+        }
+
+        /* Transcript Log */
+        .transcript-log {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 14px;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .log-entry { margin: 0; }
+        .log-user { color: #3b82f6; }
+        .log-eva { color: #8b5cf6; }
+        .log-sys { color: #64748b; font-style: italic; }
+
+        .tag-key {
+            background: #fef08a;
+            color: #854d0e;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+
+        /* Coaching */
+        .coaching-view {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 8px;
+            padding: 15px;
+            color: #065f46;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>
+        Dev Dashboard: Real-time Analysis
+        <button id="btnConnect" class="btn-connect">Connect Agent</button>
+    </h1>
+    <div class="subtitle">A pure data/stats view of the English coaching processing pipeline.</div>
+
+    <div class="dashboard-grid">
+        <!-- Live Metrics Panel -->
+        <div class="panel">
+            <div class="panel-header">Session & Fluency Metrics</div>
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-value" id="valFluency">--</div>
+                    <div class="stat-label">Avg Fluency</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="valVocab">--</div>
+                    <div class="stat-label">Current Vocab</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="valUtterances">0</div>
+                    <div class="stat-label">Utterances</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="valFixes">0</div>
+                    <div class="stat-label">Fixes</div>
+                </div>
+            </div>
+
+            <div class="panel-header" style="margin-top: 10px;">End of Session Feedback</div>
+            <div id="coachingFeedback" class="coaching-view">
+                Waiting for final session insights...
+            </div>
+        </div>
+
+        <!-- Syntax & Grammar Panel -->
+        <div class="panel">
+            <div class="panel-header">Real-time Grammar Issues Detected</div>
+            <div class="grammar-list" id="grammarList">
+                <div style="color: #94a3b8; font-size: 14px; text-align: center; margin-top: 20px;">
+                    No grammar issues detected yet. Speak clearly!
+                </div>
+            </div>
+        </div>
+
+        <!-- Raw Transcript Panel -->
+        <div class="panel" style="grid-column: span 2;">
+            <div class="panel-header">Processing Log</div>
+            <div class="transcript-log" id="transcriptLog">
+                <div class="log-entry log-sys">[System] Ready to connect...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Livekit Client -->
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+    <script>
+        const { Room, RoomEvent, VideoPresets, createLocalAudioTrack } = LivekitClient;
+
+        let currentRoom = null;
+        const btnConnect = document.getElementById('btnConnect');
+        const transcriptLog = document.getElementById('transcriptLog');
+        const grammarList = document.getElementById('grammarList');
+        const coachingFeedback = document.getElementById('coachingFeedback');
+
+        function appendLog(text, type = 'sys') {
+            const div = document.createElement('div');
+            div.className = `log-entry log-${type}`;
+            div.innerHTML = text; // allow basic HTML like tags
+            transcriptLog.appendChild(div);
+            transcriptLog.scrollTop = transcriptLog.scrollHeight;
+        }
+
+        async function connect() {
+            btnConnect.disabled = true;
+            btnConnect.textContent = "Connecting...";
+            appendLog("[System] Fetching token...");
+
+            try {
+                const resp = await fetch('/api/agent_viewer_token');
+
+                if (!resp.ok) {
+                    const errTxt = await resp.text();
+                    throw new Error(errTxt || "Failed to get token. Make sure Eva is running first!");
+                }
+                const { token, url, room_name } = await resp.json();
+
+                appendLog(`[System] Connecting as passive viewer to: ${room_name}`);
+
+                currentRoom = new Room({
+                    adaptiveStream: true,
+                    dynacast: true,
+                    publishDefaults: { audioPreset: VideoPresets.h90 }
+                });
+
+                currentRoom.on(RoomEvent.DataReceived, (payload) => {
+                    const data = JSON.parse(new TextDecoder().decode(payload));
+
+                    if (data.type === 'transcript') {
+                        const style = data.speaker === 'eva' ? 'eva' : 'user';
+                        const prefix = data.speaker === 'eva' ? '🤖 Eva:' : '🗣️ You:';
+                        appendLog(`<b>${prefix}</b> ${data.text}`, style);
+                    } 
+                    else if (data.type === 'analysis') {
+                        // Log processing
+                        let extra = "";
+                        if (data.key_sentence) extra = '<span class="tag-key">KEY SENTENCE</span>';
+                        appendLog(`[Groq Analysis] Cleaned to: <i>"${data.cleaned}"</i> ${extra}`, 'sys');
+
+                        // Update metrics dashboard
+                        document.getElementById('valVocab').textContent = data.vocab_level;
+                        if (data.bucket_stats) {
+                            document.getElementById('valFluency').textContent = data.bucket_stats.avg_fluency + "/10";
+                            document.getElementById('valUtterances').textContent = data.bucket_stats.total;
+                            document.getElementById('valFixes').textContent = data.bucket_stats.issue_count;
+                        }
+
+                        // Add new grammar issues to the UI correctly
+                        if (data.grammar_issues && data.grammar_issues.length > 0) {
+                            if(grammarList.innerHTML.includes("No grammar issues")) {
+                                grammarList.innerHTML = "";
+                            }
+                            data.grammar_issues.forEach(iss => {
+                                const issueDiv = document.createElement('div');
+                                issueDiv.className = 'grammar-issue';
+                                issueDiv.innerHTML = `
+                                    <span class="wrong">${iss.original}</span> ➔ <span class="correct">${iss.corrected}</span>
+                                    ${iss.rule ? `<span class="rule">Rule: ${iss.rule}</span>` : ''}
+                                `;
+                                // Insert at top
+                                grammarList.insertBefore(issueDiv, grammarList.firstChild);
+                            });
+                        }
+                    } 
+                    else if (data.type === 'feedback') {
+                        appendLog("[System] Received final feedback summary.", 'sys');
+                        coachingFeedback.innerHTML = `<b>Final Summary:</b><br/>${data.text}`;
+                    } 
+                    else if (data.type === 'status' && data.message === 'analyzing') {
+                        appendLog("[System] Eva is analyzing the session for feedback...", 'sys');
+                    }
+                });
+
+                currentRoom.on(RoomEvent.TrackSubscribed, (track) => {
+                    if (track.kind === 'audio') {
+                        const audio = track.attach();
+                        document.body.appendChild(audio);
+                        appendLog("[System] Eva speech track hooked up.", 'sys');
+                    }
+                });
+
+                await currentRoom.connect(url, token);
+                
+                appendLog("[System] Dashboard successfully attached to Eva's room!");
+                btnConnect.textContent = "Monitoring Live Room";
+                btnConnect.style.background = "#10b981";
+
+            } catch (err) {
+                console.error(err);
+                appendLog(`[Error] ${err.message}`, 'sys');
+                btnConnect.disabled = false;
+                btnConnect.textContent = "Connect Agent";
+            }
+        }
+
+        btnConnect.addEventListener('click', connect);
+    </script>
+</body>
+</html>

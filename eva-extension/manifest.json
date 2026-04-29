@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Eva — AI English Web Sidekick",
+  "version": "1.1",
+  "description": "Eva follows you across the web, transcribing and analyzing your talk in real-time.",
+  "permissions": ["tabs", "storage", "idle", "offscreen", "alarms"],
+  "host_permissions": ["http://localhost:8080/*", "https://*/*", "https://*.livekit.cloud/*"],
+  "action": {
+    "default_title": "Eva Settings",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

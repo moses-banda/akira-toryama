@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eva Sidekick</title>
+  <style>
+    :root {
+      --primary-bg: #0f172a;
+      --accent-color: #6366f1;
+      --text-color: #f8fafc;
+      --panel-bg: rgba(30, 41, 59, 0.7);
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: var(--primary-bg);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .status-badge {
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-online { color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+    .status-offline { color: #94a3b8; }
+    
+    .transcript-container {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--panel-bg);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .transcript-line { margin-bottom: 8px; font-size: 13px; line-height: 1.5; }
+    .speaker-user { color: var(--accent-color); font-weight: 500; }
+    .speaker-eva { color: #4ade80; font-weight: 500; }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    button {
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:disabled { background: #334155; opacity: 0.5; }
+    button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
+
+    .feedback-area {
+      font-size: 12px;
+      font-style: italic;
+      color: #94a3b8;
+      background: rgba(0,0,0,0.2);
+      padding: 8px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h3 style="margin:0">Eva</h3>
+    <div id="status" class="status-badge status-offline">Offline</div>
+  </div>
+
+  <div id="transcript" class="transcript-container">
+    <div class="transcript-line" style="opacity:0.5">Start speaking to see transcription...</div>
+  </div>
+
+  <div id="feedback" class="feedback-area" style="display:none">
+    Thinking...
+  </div>
+
+  <div class="controls">
+    <button id="startBtn">Start Recording</button>
+    <button id="grantBtn" style="display:none; background: #a855f7;">Grant Mic Access</button>
+    <button id="stopBtn" style="display:none; background: #ef4444;">Stop Session</button>
+  </div>
+
+  <!-- Local UMD script for Manifest v3 security -->
+  <script src="livekit-client.umd.min.js"></script>
+  <script src="config.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
